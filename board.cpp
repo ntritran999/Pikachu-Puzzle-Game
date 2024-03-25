@@ -49,9 +49,15 @@ bool check_I_Match(GameBoard board, Block first, Block second)
         // Check if there's any other block in the way.
         int start, end;
         if (first.y < second.y)
+        {
             start = first.y;
-        else
             end = second.y;
+        }
+        else
+        {
+            start = second.y;
+            end = first.y;
+        }
 
         for (int row = start + 1; row < end; row++)
             if (board.Blocks[row][first.x].mode != EMPTY)
@@ -59,10 +65,6 @@ bool check_I_Match(GameBoard board, Block first, Block second)
                 check_vertical = false;
                 break;
             }
-
-        // Check for matching character
-        if (first.value != second.value)
-            check_vertical = false;
     }
 
     // Check horizontally
@@ -73,9 +75,15 @@ bool check_I_Match(GameBoard board, Block first, Block second)
         // Check if there's any other block in the way.
         int start, end;
         if (first.x < second.x)
+        {
             start = first.x;
-        else
             end = second.x;
+        }
+        else
+        {
+            start = second.x;
+            end = first.x;
+        }
 
         for (int col = start + 1; col < end; col++)
             if (board.Blocks[first.y][col].mode != EMPTY)
@@ -83,10 +91,6 @@ bool check_I_Match(GameBoard board, Block first, Block second)
                 check_horizontal = false;
                 break;
             }
-
-        // Check for matching character
-        if (first.value != second.value)
-            check_horizontal = false;
     }
 
     return check_vertical || check_horizontal;
@@ -94,7 +98,45 @@ bool check_I_Match(GameBoard board, Block first, Block second)
 
 bool check_U_Match(GameBoard board, Block first, Block second)
 {
+    bool check_horizontal = true, check_vertical = true;
 
+    // Check horizontal
+    if (first.y != second.y)
+        check_horizontal = false;
+    else
+    {
+        // Check top and bottom
+        // First to check top, check the two blocks right above first and second block
+        // Then perform I-match checking for the blocks bewteen those two tmp blocks
+        // Do the same thing again for checking bottom
+        for (int i = -1; i <= 1; i += 2)
+        {
+            Block tmp1 = board.Blocks[first.y + i][first.x];
+            Block tmp2 = board.Blocks[second.y + i][second.x];
+            if(!check_I_Match(board, tmp1, tmp2) || tmp1.mode != EMPTY || tmp2.mode != EMPTY)
+                check_horizontal = false;
+        }
+    }
+    
+    // Check vertical
+    if (first.x != second.x)
+        check_vertical = false;
+    else
+    {
+        // Check top and bottom
+        // First to check top, check the two blocks on the left of first and second block
+        // Then perform I-match checking for the blocks bewteen those two tmp blocks
+        // Do the same thing again for checking right
+        for (int i = -1; i <= 1; i += 2)
+        {
+            Block tmp1 = board.Blocks[first.y][first.x + i];
+            Block tmp2 = board.Blocks[second.y][second.x + i];
+            if(!check_I_Match(board, tmp1, tmp2) || tmp1.mode != EMPTY || tmp2.mode != EMPTY)
+                check_vertical = false;
+        }
+    }
+
+    return check_horizontal || check_vertical;
 }
 
 
