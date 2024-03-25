@@ -42,19 +42,19 @@ bool check_I_Match(GameBoard board, Block first, Block second)
     bool check_horizontal = true;
 
     // Check vertically
-    if (first.coord_x != second.coord_x)
+    if (first.x != second.x)
         check_vertical = false;
     else
     {
         // Check if there's any other block in the way.
         int start, end;
-        if (first.coord_y < second.coord_y)
-            start = first.coord_y;
+        if (first.y < second.y)
+            start = first.y;
         else
-            end = second.coord_y;
+            end = second.y;
 
         for (int row = start + 1; row < end; row++)
-            if (board.Blocks[row][first.coord_x].mode != EMPTY)
+            if (board.Blocks[row][first.x].mode != EMPTY)
             {
                 check_vertical = false;
                 break;
@@ -66,19 +66,19 @@ bool check_I_Match(GameBoard board, Block first, Block second)
     }
 
     // Check horizontally
-    if (first.coord_y != second.coord_y)
+    if (first.y != second.y)
         check_horizontal = false;
     else
     {
         // Check if there's any other block in the way.
         int start, end;
-        if (first.coord_x < second.coord_x)
-            start = first.coord_x;
+        if (first.x < second.x)
+            start = first.x;
         else
-            end = second.coord_x;
+            end = second.x;
 
         for (int col = start + 1; col < end; col++)
-            if (board.Blocks[first.coord_y][col].mode != EMPTY)
+            if (board.Blocks[first.y][col].mode != EMPTY)
             {
                 check_horizontal = false;
                 break;
