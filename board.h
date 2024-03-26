@@ -18,8 +18,15 @@ void drawBoard(GameBoard *board);
 
 // Block Matching algorithms
 bool check_I_Match(GameBoard board, Block first, Block second);
+
 void check_L_Match(Block first, Block second);
+
+bool check_U_Top(GameBoard board, Block first, Block second);
+bool check_U_Bottom(GameBoard board, Block first, Block second);
+bool check_U_Left(GameBoard board, Block first, Block second);
+bool check_U_Right(GameBoard board, Block first, Block second);
 bool check_U_Match(GameBoard board, Block first, Block second);
+
 void check_Z_Match(Block first, Block second);
 
 
