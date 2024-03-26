@@ -10,7 +10,7 @@ enum Block_mode
 
 struct Block
 {
-    int coord_x, coord_y;   // the (x,y) coordinate of block inside the grid
+    int x, y;   // the (x,y) coordinate of block inside the grid
     char value;             // the character represent the block
     Block_mode mode;
 };
