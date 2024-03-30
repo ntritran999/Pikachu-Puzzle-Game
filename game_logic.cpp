@@ -22,9 +22,11 @@ bool checkRemainPairs(GameBoard board)
                 {
                     second = board.Blocks[r][c];
                     bool check_I = check_I_Match(board, first, second);
+                    bool check_L = check_L_Match(board, first, second);
+                    bool check_Z = check_Z_Match(board, first, second);
                     bool check_U = check_U_Match(board, first, second);
-
-                    if (!check_I || !check_U)
+                    
+                    if (!check_I || !check_L || !check_Z || !check_U)
                         return false;
                 }
         }
