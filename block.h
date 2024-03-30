@@ -12,6 +12,7 @@ struct Block
 {
     int x, y;   // the (x,y) coordinate of block inside the grid
     char value;             // the character represent the block
+    bool isSelected;
     Block_mode mode;
 };
 
