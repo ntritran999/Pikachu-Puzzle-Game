@@ -79,6 +79,81 @@ bool check_I_Match(GameBoard board, Block first, Block second)
     return check_vertical || check_horizontal;
 }
 
+bool check_L_Match(GameBoard board, Block first, Block second) 
+{
+    bool flag1 = false;
+    bool flag2 = false;
+
+    // Find the position of the other two corners of the L shape 
+    Block temp1 = board.Blocks[second.y][first.x];
+    Block temp2 = board.Blocks[first.y][second.x];
+    
+    if (temp1.mode == EMPTY)
+        // Check L match by verifying both of its edges
+        flag1 = check_I_Match(board, first, temp1) && check_I_Match(board, second, temp1);
+    
+    if (temp2.mode == EMPTY)
+        flag2 = check_I_Match(board, first, temp2) && check_I_Match(board, second, temp2);
+    
+    return (flag1 || flag2);
+}
+
+bool check_Z_Match(GameBoard board, Block first, Block second) {
+
+    bool check_vertical = false;
+    bool check_horizontal = false;
+
+    // Check vertically
+  
+    int start = std::min(first.y, second.y);
+    int end = std::max(first.y, second.y);
+
+    for (int row = start + 1; row < end; row++) {
+
+        Block temp1 = board.Blocks[row][first.x];
+        Block temp2 = board.Blocks[row][second.x];
+
+        if (temp1.mode == EMPTY && temp2.mode == EMPTY) 
+        {
+            // Check Z match by verifying three of its edges
+            if (check_I_Match(board, first, temp1) &&
+                check_I_Match(board, temp1, temp2) &&
+                check_I_Match(board, second, temp2))
+            {
+                check_vertical = true;
+                break;
+            }
+        }
+    }
+
+
+    // Check horizontally
+
+    start = std::min(first.x, second.x);
+    end = std::max(first.x, second.x);
+
+    for (int col = start + 1; col < end; col++)
+    {
+        Block temp1 = board.Blocks[first.y][col];
+        Block temp2 = board.Blocks[second.y][col];
+
+        if (temp1.mode == EMPTY && temp2.mode == EMPTY)
+        {
+            // Check Z match by verifying three of its edges
+            if (check_I_Match(board, first, temp1) &&
+                check_I_Match(board, temp1, temp2) &&
+                check_I_Match(board, second, temp2))
+            {
+                check_horizontal = true;
+                break;
+            }
+        }
+    }
+    return check_vertical || check_horizontal;
+}
+
+
+
 bool check_U_Top(GameBoard board, Block first, Block second)
 {
     // Check top
