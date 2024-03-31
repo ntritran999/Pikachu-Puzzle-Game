@@ -53,15 +53,23 @@ void startGame()
 
 void loadGame(GameInfo *game)
 {
+    // Initialize board
+    srand(time(0));
     GameBoard board;
     int board_size = game->difficulty * 2 + 4;
     initBoard(&board, board_size);
     fillBoard(&board);
 
+    // Game score
+    int score = game->score;
+
+    // Initialize cursor
     int cursor_x = 0, cursor_y = 0;
-    Block *first, *second, *current;
+    Block *first = nullptr, *second = nullptr, *current;
     int nLocks = 0;
     int c;
+
+    // Main game loop
     while (true)
     {
         resetOutofBound(cursor_x, cursor_y, board_size);        
@@ -75,18 +83,48 @@ void loadGame(GameInfo *game)
 
         if (c == 0 || c == 224)
             moveCursor(c, cursor_x, cursor_y, current);
-        
-        else if (c == ESC)
-            break;
 
         else if (c == SPACE_KEY)
+        {
             lockCursor(nLocks, current);
+
+            if (nLocks == 1)
+                first = current;
+            else if (nLocks == 2)
+                second = current;
+        }
         
         else if (c == 'u')
             unlockCursor(nLocks, current);
+
+        // Confirm blocks
+        else if (c == '\r')
+        {
+            if (first != nullptr && second != nullptr)
+            {
+                //Start scoring after confirming
+                if (scoreIMatch(score, board, first, second) ||
+                    scoreLMatch(score, board, first, second) ||
+                    scoreZMatch(score, board, first, second) ||
+                    scoreUMatch(score, board, first, second))
+                {
+                    nLocks = 0;
+                }
+                Sleep(500);
+            }
+        }
+        
+        else if (c == ESC)
+            break;
+        
+        if (checkEmptyBoard(board))
+        {
+            break;
+        }
     }
 }
 
+// Movements
 void resetOutofBound(int &x, int &y, int size)
 {
     if (x < 0)
@@ -143,6 +181,54 @@ void unlockCursor(int &n, Block *block)
     }
 }
 
+// Scoring
+bool scoreIMatch(int &score, GameBoard board, Block *first, Block *second)
+{
+    if (check_I_Match(board, *first, *second) && first->value == second->value)
+    {
+        first->mode = second->mode = EMPTY;
+        score++;
+        return true;
+    }
+
+    return false;
+}
+
+bool scoreLMatch(int &score, GameBoard board, Block *first, Block *second)
+{
+    if (check_L_Match(board, *first, *second) && first->value == second->value)
+    {
+        first->mode = second->mode = EMPTY;
+        score++;
+        return true;
+    }
+
+    return false;
+}
+
+bool scoreZMatch(int &score, GameBoard board, Block *first, Block *second)
+{
+    if (check_Z_Match(board, *first, *second) && first->value == second->value)
+    {
+        first->mode = second->mode = EMPTY;
+        score++;
+        return true;
+    }
+
+    return false;
+}
+
+bool scoreUMatch(int &score, GameBoard board, Block *first, Block *second)
+{
+    if (check_U_Match(board, *first, *second) && first->value == second->value)
+    {
+        first->mode = second->mode = EMPTY;
+        return true;
+    }
+
+    return false;
+}
+
 bool checkEmptyBoard(GameBoard board)
 {
     for (int i = 0; i < board.size; i++)
@@ -177,7 +263,7 @@ bool checkRemainPairs(GameBoard board)
                     bool check_L = check_L_Match(board, first, second);
                     bool check_Z = check_Z_Match(board, first, second);
 
-                    if (!check_I || !check_U || !check_L || !check_Z)
+                    if (!check_I && !check_U && !check_L && !check_Z)
                         return false;
                 }
         }
