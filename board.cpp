@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "board.h"
 
 // Set up board
@@ -229,6 +227,38 @@ bool check_U_Match(GameBoard board, Block first, Block second)
     return check_top || check_bottom || check_left || check_right;
 }
 
+// Visualize
+void drawBlock(Block block)
+{
+    int x = block.x * 7;
+    int y = block.y * 5;
+
+    gotoXY(30 + x, 0 + y);
+    std::cout << " ----- \n";
+    
+    if (block.isSelected)
+        setColor(WHITE, BLACK);
+    gotoXY(30 + x, 1 + y);
+    std::cout << "|     |\n";
+    gotoXY(30 + x, 2 + y);
+    std::cout << "|  " << block.value << "  |\n";
+    gotoXY(30 + x, 3 + y);
+    std::cout << "|     |\n";
+   
+    setDefaultColor();
+   
+    gotoXY(30 + x, 4 + y);
+    std::cout << " ----- \n";
+}
+
+void drawBoard(GameBoard board)
+{
+    for (int i = 0; i < board.size; i++)
+        for (int j = 0; j < board.size; j++)
+        {
+            drawBlock(board.Blocks[i][j]);   
+        }
+}
 
 // Clean up board
 void cleanBoard(GameBoard *board)
