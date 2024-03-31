@@ -21,6 +21,7 @@
 #define BRIGHT_WHITE 15
 
 // Keyboard values
+#define SPACE_KEY 32
 #define ESC 27
 #define KEY_UP 72
 #define KEY_DOWN 80

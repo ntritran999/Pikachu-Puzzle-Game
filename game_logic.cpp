@@ -57,42 +57,33 @@ void loadGame(GameInfo *game)
     int board_size = game->difficulty * 2 + 4;
     initBoard(&board, board_size);
     fillBoard(&board);
-    board.Blocks[0][0].isSelected = true;
 
-    int keyboard_input;
     int cursor_x = 0, cursor_y = 0;
+    Block *first, *second, *current;
+    int nLocks = 0;
+    int c;
     while (true)
     {
         resetOutofBound(cursor_x, cursor_y, board_size);        
-        system("cls");
+        current = &board.Blocks[cursor_y][cursor_x];
+        current->isSelected = true;
 
+        system("cls");
         drawBoard(board);
 
-        keyboard_input = getch();
+        c = getch();
 
-        if (keyboard_input == 0 || keyboard_input == 224)
-        {
-            switch (keyboard_input = getch())
-            {
-                case KEY_DOWN:
-                    cursor_y++;
-                    break;
-                case KEY_UP:
-                    cursor_y--;
-                    break;
-                case KEY_LEFT:
-                    cursor_x--;
-                    break;
-                case KEY_RIGHT:
-                    cursor_x++;
-                    break;
-                default:
-                    break;
-            }
-        }
+        if (c == 0 || c == 224)
+            moveCursor(c, cursor_x, cursor_y, current);
         
-        else if (keyboard_input == ESC)
+        else if (c == ESC)
             break;
+
+        else if (c == SPACE_KEY)
+            lockCursor(nLocks, current);
+        
+        else if (c == 'u')
+            unlockCursor(nLocks, current);
     }
 }
 
@@ -109,6 +100,48 @@ void resetOutofBound(int &x, int &y, int size)
         y = size - 1;
 }
 
+void moveCursor(int c, int &x, int &y, Block *block)
+{
+    switch (c = getch())
+    {
+        case KEY_DOWN:
+            block->isSelected = false;
+            y++;
+            break;
+        case KEY_UP:
+            block->isSelected = false;
+            y--;
+            break;
+        case KEY_LEFT:
+            block->isSelected = false;
+            x--;
+            break;
+        case KEY_RIGHT:
+            block->isSelected = false;
+            x++;
+            break;
+        default:
+            break;
+    }
+}
+
+void lockCursor(int &n, Block *block)
+{
+    if (n != 2)
+    {
+        block->mode = LOCKED;
+        n++;
+    }
+}
+
+void unlockCursor(int &n, Block *block)
+{
+    if (block->mode == LOCKED)
+    {
+        block->mode = NORMAL;
+        n--;
+    }
+}
 
 bool checkEmptyBoard(GameBoard board)
 {
