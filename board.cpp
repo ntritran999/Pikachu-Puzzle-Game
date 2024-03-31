@@ -329,12 +329,40 @@ void drawBlock(Block block)
     std::cout << " ----- \n";
 }
 
+void drawSelectedEmptyBlock(Block block)
+{
+    int x = block.x * 7;
+    int y = block.y * 5;
+
+    gotoXY(30 + x, 0 + y);
+    std::cout << "       \n";    
+
+    setColor(WHITE, BLACK);
+
+    gotoXY(30 + x, 1 + y);
+    std::cout << "       \n";
+    gotoXY(30 + x, 2 + y);
+    std::cout << "       \n";
+    gotoXY(30 + x, 3 + y);
+    std::cout << "       \n";
+    
+    setDefaultColor();
+
+    gotoXY(30 + x, 4 + y);
+    std::cout << "       \n";
+}
+
 void drawBoard(GameBoard board)
 {
     for (int i = 0; i < board.size; i++)
         for (int j = 0; j < board.size; j++)
         {
-            drawBlock(board.Blocks[i][j]);   
+            Block block = board.Blocks[i][j];
+            if (block.mode != EMPTY)
+                drawBlock(block);
+            else
+                if (block.isSelected == true)
+                    drawSelectedEmptyBlock(block);
         }
 }
 

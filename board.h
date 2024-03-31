@@ -33,6 +33,7 @@ bool check_Z_Match(GameBoard board, Block first, Block second);
 
 // Visual Representation
 void drawBlock(Block block);
+void drawSelectedEmptyBlock(Block block);
 void drawBoard(GameBoard board);
 
 // Clean up board
