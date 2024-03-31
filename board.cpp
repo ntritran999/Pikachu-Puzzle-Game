@@ -313,6 +313,9 @@ void drawBlock(Block block)
     
     if (block.isSelected)
         setColor(WHITE, BLACK);
+    else if (block.mode == LOCKED)
+        setColor(GREEN, LIGHT_BLUE);
+        
     gotoXY(30 + x, 1 + y);
     std::cout << "|     |\n";
     gotoXY(30 + x, 2 + y);
