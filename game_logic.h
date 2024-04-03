@@ -1,6 +1,9 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
 #include <time.h>
 #include <stdlib.h>
 #include <conio.h>
@@ -24,8 +27,10 @@ struct GameInfo
 // Game stage
 void startGame();
 void loadGame(GameInfo *game);
-void exitGame();
-void saveGame();
+void saveGame(GameInfo game);
+
+// Draw background
+void drawBackground(GameDifficulty difficulty);
 
 // Movements
 void resetOutofBound(int &x, int &y, int size);
@@ -34,6 +39,7 @@ void lockCursor(int &n, Block *block);
 void unlockCursor(int &n, Block *block);
 
 // Scoring
+void drawScoreBoard(int score);
 bool scoreIMatch(int &score, GameBoard board, Block *first, Block *second);
 bool scoreLMatch(int &score, GameBoard board, Block *first, Block *second);
 bool scoreZMatch(int &score, GameBoard board, Block *first, Block *second);
@@ -43,4 +49,5 @@ bool scoreUMatch(int &score, GameBoard board, Block *first, Block *second);
 bool checkEmptyBoard(GameBoard board);
 bool checkRemainPairs(GameBoard board);
 
-void moveSuggestion();
+// Helping tool
+void moveSuggestion(GameBoard board);

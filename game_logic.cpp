@@ -8,10 +8,15 @@ void startGame()
     while (true)
     {
         system("cls");
+        setColor(BLACK, LIGHT_AQUA);
         std::cout << "Choose difficulty: \n";
+        setColor(BLACK, GREEN);
         std::cout << "1.Easy\n";
+        setColor(BLACK, YELLOW);
         std::cout << "2.Medium\n";
+        setColor(BLACK, RED);
         std::cout << "3.Hard\n";
+        setDefaultColor();
         std::cout << "\n[PRESS ESC KEY TO GO BACK TO MAIN MENU]\n";
 
         option = getch();
@@ -62,6 +67,7 @@ void loadGame(GameInfo *game)
 
     // Game score
     int score = game->score;
+    game->gameOver = false;
 
     // Initialize cursor
     int cursor_x = 0, cursor_y = 0;
@@ -77,7 +83,9 @@ void loadGame(GameInfo *game)
         current->isSelected = true;
 
         system("cls");
+        drawBackground(game->difficulty);
         drawBoard(board);
+        drawScoreBoard(score);
 
         c = getch();
 
@@ -86,12 +94,14 @@ void loadGame(GameInfo *game)
 
         else if (c == SPACE_KEY)
         {
-            lockCursor(nLocks, current);
+            if (current->mode != EMPTY)
+                lockCursor(nLocks, current);
 
             if (nLocks == 1)
                 first = current;
             else if (nLocks == 2)
                 second = current;
+
         }
         
         else if (c == 'u')
@@ -102,24 +112,105 @@ void loadGame(GameInfo *game)
         {
             if (first != nullptr && second != nullptr)
             {
-                //Start scoring after confirming
-                if (scoreIMatch(score, board, first, second) ||
-                    scoreLMatch(score, board, first, second) ||
-                    scoreZMatch(score, board, first, second) ||
-                    scoreUMatch(score, board, first, second))
+                if (first->mode != EMPTY && second->mode != EMPTY)
                 {
-                    nLocks = 0;
-                }
+                    //Start scoring after confirming
+                    if (scoreIMatch(score, board, first, second))
+                            nLocks = 0;
+                    else if (scoreLMatch(score, board, first, second))
+                            nLocks = 0;
+                    else if (scoreZMatch(score, board, first, second))
+                            nLocks = 0;
+                    else if (scoreUMatch(score, board, first, second))
+                            nLocks = 0;
+                    
+                    else
+                    {
+                        unlockCursor(nLocks, first);
+                        unlockCursor(nLocks, second);
+                        first = second = nullptr;
+                    }
+                }    
                 Sleep(500);
             }
         }
         
         else if (c == ESC)
+        {
+            saveGame(*game);
             break;
+        }
+
+        else if (c == 'h')
+        {
+            moveSuggestion(board);
+            Sleep(5000);
+        }
         
         if (checkEmptyBoard(board))
         {
+            Sleep(3000);
+            system("cls");
+            setColor(BLACK, YELLOW);
+            std::cout << "No more blocks!\n";
+            setDefaultColor();
+            saveGame(*game);
             break;
+        }
+
+        if (!checkRemainPairs(board))
+        {
+            Sleep(3000);
+            system("cls");
+            setColor(BLACK, YELLOW);
+            std::cout << "No more valid pairs!\n";
+            setDefaultColor();
+            saveGame(*game);
+            break;
+        }
+    }
+}
+
+void saveGame(GameInfo game)
+{
+    std::string name;
+    std::cout << "Please enter your name: ";
+    std::cin >> name;
+
+
+}
+
+////////////////////////////////////////////////////////
+//Draw background
+void drawBackground(GameDifficulty difficulty)
+{
+    std::string file_name;
+    if (difficulty == EASY)
+        file_name = R"(.\images\1.txt)";
+    else if (difficulty == MEDIUM)
+        file_name = R"(.\images\2.txt)";
+    else
+        file_name = R"(.\images\3.txt)";
+
+    std::ifstream bg_file(file_name);
+    
+    if (!bg_file.is_open())
+    {
+        std::cout << "Cannot open file!\n";
+        return;
+    }
+    else
+    {
+        std::vector <std::string> background;
+        std::string line;
+        while (std::getline(bg_file, line))
+            background.push_back(line + '\n');
+        bg_file.close();
+        
+        for (int i = 0; i < background.size(); i++)
+        {
+            gotoXY(30, 3 + i);
+            std::cout << background[i];
         }
     }
 }
@@ -165,7 +256,7 @@ void moveCursor(int c, int &x, int &y, Block *block)
 
 void lockCursor(int &n, Block *block)
 {
-    if (n != 2)
+    if (n != 2 && block->mode != LOCKED)
     {
         block->mode = LOCKED;
         n++;
@@ -182,10 +273,36 @@ void unlockCursor(int &n, Block *block)
 }
 
 // Scoring
+void drawScoreBoard(int score)
+{
+    RECT desktop;
+    GetWindowRect(GetDesktopWindow(), &desktop);
+
+    int max_len = desktop.right / 8;
+
+    gotoXY(max_len - 50, 2);
+    std::cout << "+------------------+\n";
+    gotoXY(max_len - 50, 3);
+    std::cout << "|                  |\n";
+    gotoXY(max_len - 50, 4);
+    std::cout << "|    score: " << score << "    ";
+    if (score < 10)
+        std::cout << "  |\n";
+    else if (score < 100)
+        std::cout << " |\n";
+    else if (score < 1000)
+        std::cout << "|\n";
+    gotoXY(max_len - 50, 5);
+    std::cout << "|                  |\n";
+    gotoXY(max_len - 50, 6);
+    std::cout << "+------------------+\n";
+}
+
 bool scoreIMatch(int &score, GameBoard board, Block *first, Block *second)
 {
-    if (check_I_Match(board, *first, *second) && first->value == second->value)
+    if (first->value == second->value && check_I_Match(board, *first, *second))
     {
+        drawILine(*first, *second);
         first->mode = second->mode = EMPTY;
         score++;
         return true;
@@ -196,10 +313,14 @@ bool scoreIMatch(int &score, GameBoard board, Block *first, Block *second)
 
 bool scoreLMatch(int &score, GameBoard board, Block *first, Block *second)
 {
-    if (check_L_Match(board, *first, *second) && first->value == second->value)
+    if (first->value == second->value && check_L_Match(board, *first, *second))
     {
+        if (first->y < second->y)
+            drawLLine(board, *second, *first);
+        else
+            drawLLine(board, *first, *second);
         first->mode = second->mode = EMPTY;
-        score++;
+        score += 2;
         return true;
     }
 
@@ -208,10 +329,11 @@ bool scoreLMatch(int &score, GameBoard board, Block *first, Block *second)
 
 bool scoreZMatch(int &score, GameBoard board, Block *first, Block *second)
 {
-    if (check_Z_Match(board, *first, *second) && first->value == second->value)
+    if (first->value == second->value && check_Z_Match(board, *first, *second))
     {
+        drawZLine(board, *first, *second);
         first->mode = second->mode = EMPTY;
-        score++;
+        score += 3;
         return true;
     }
 
@@ -220,15 +342,18 @@ bool scoreZMatch(int &score, GameBoard board, Block *first, Block *second)
 
 bool scoreUMatch(int &score, GameBoard board, Block *first, Block *second)
 {
-    if (check_U_Match(board, *first, *second) && first->value == second->value)
+    if (first->value == second->value && check_U_Match(board, *first, *second))
     {
+        drawULine(board, *first, *second);
         first->mode = second->mode = EMPTY;
+        score += 3;
         return true;
     }
 
     return false;
 }
 
+// Check end game
 bool checkEmptyBoard(GameBoard board)
 {
     for (int i = 0; i < board.size; i++)
@@ -243,30 +368,43 @@ bool checkRemainPairs(GameBoard board)
     Block first, second;
     for (int i = 0; i < board.size; i++)
     {
-        for (int j = 0; i < board.size; j++)
+        for (int j = 0; j < board.size; j++)
         {
             first = board.Blocks[i][j];
 
             if (first.mode == EMPTY) 
                 continue;
 
-            for (int r = i; r < board.size; r++)
-                for (int c = j; c < board.size; c++)
+            for (int r = 0; r < board.size; r++)
+                for (int c = 0; c < board.size; c++)
                 {
+                    if (i == r && j == c)
+                        continue;
+
                     second = board.Blocks[r][c];
 
                     if (second.mode == EMPTY)
+                        continue;
+
+                    if (first.value != second.value)
                         continue;
 
                     bool check_I = check_I_Match(board, first, second);
                     bool check_U = check_U_Match(board, first, second);
                     bool check_L = check_L_Match(board, first, second);
                     bool check_Z = check_Z_Match(board, first, second);
-
-                    if (!check_I && !check_U && !check_L && !check_Z)
-                        return false;
+                    
+                    if (check_I || check_U || check_L || check_Z)
+                        return true;
                 }
         }
     }
-    return true;
+
+    return false;
+}
+
+// Move suggestion
+void moveSuggestion(GameBoard board)
+{
+
 }
