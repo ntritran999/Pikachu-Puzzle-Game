@@ -8,6 +8,14 @@ void gotoXY(int x, int y)
     SetConsoleCursorPosition(consoleOutput, COORD{ (short)x, (short)y });
 }
 
+void setUpWindow()
+{
+    setWindowSize();
+    setTitle();
+    hideCursor();
+    hideScrollBar();
+}
+
 void setWindowSize()
 {
     RECT desktop;
@@ -44,5 +52,5 @@ void hideCursor()
 
 void setTitle()
 {
-
+    SetConsoleTitleA("PIKACHU-PUZZLE-GAME");
 }

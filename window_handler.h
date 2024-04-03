@@ -29,6 +29,7 @@
 #define KEY_RIGHT 77
 
 void gotoXY(int x, int y);
+void setUpWindow();
 void setWindowSize();
 void setColor(int background, int text);
 void setDefaultColor();
