@@ -23,18 +23,22 @@ bool check_I_Match(GameBoard board, Block first, Block second);
 
 bool check_L_Match(GameBoard board, Block first, Block second);
 
-bool check_U_Top(GameBoard board, Block first, Block second);
-bool check_U_Bottom(GameBoard board, Block first, Block second);
-bool check_U_Left(GameBoard board, Block first, Block second);
-bool check_U_Right(GameBoard board, Block first, Block second);
-bool check_U_Match(GameBoard board, Block first, Block second);
-
 bool check_Z_Match(GameBoard board, Block first, Block second);
+
+bool check_U_Horizontal(GameBoard board, Block first, Block second);
+bool check_U_Vertical(GameBoard board, Block first, Block second);
+bool check_U_Match(GameBoard board, Block first, Block second);
 
 // Visual Representation
 void drawBlock(Block block);
 void drawSelectedEmptyBlock(Block block);
 void drawBoard(GameBoard board);
+
+void drawILine(Block first, Block second);
+void drawLLine(GameBoard board, Block first, Block second);
+void drawZLine(GameBoard board, Block first, Block second);
+bool drawULineOutSide(int size, Block first, Block second);
+void drawULine(GameBoard board, Block first, Block second);
 
 // Clean up board
 void cleanBoard(GameBoard *board);
