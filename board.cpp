@@ -25,7 +25,7 @@ void fillBoard(GameBoard *board)
         for (int j = 0; j < board->size; j++)
         {
             char block_value = pool[pool_size - 1] + 'A';
-            initBLock(board->Blocks[i][j], j, i, block_value);
+            initBlock(board->Blocks[i][j], j, i, block_value);
             pool_size--;
         }
     }
@@ -297,44 +297,55 @@ void drawBoard(GameBoard board)
         }
 }
 
-void drawILine(Block first, Block second)
+
+void drawCenterDot(int x, int y)
 {
-    if (first.x == second.x)
+    gotoXY(30 + x * 7 + 3, 3 + y * 5 + 2);
+    std::cout << 'o';
+}
+
+void drawILine(int x1, int x2, int y1, int y2)
+{
+    if (x1 == x2)
     {
-        int x = first.x * 7 + 3;
-        int y1 = std::min(first.y, second.y) * 5 + 4;
-        int y2 = std::max(first.y, second.y) * 5;
-        gotoXY(30 + x, 3 + y1);
+        int x = x1 * 7 + 3;
+        int y_min = std::min(y1, y2) * 5 + 4;
+        int y_max = std::max(y1, y2) * 5;
+        
+        gotoXY(30 + x, 3 + y_min);
         std::cout << "^";
-        //setColor(WHITE, BLACK);
-        for (int i = y1 + 1; i < y2; i++)
+        
+        for (int i = y_min + 1; i < y_max; i++)
         {
             Sleep(100);
             gotoXY(30 + x, 3 + i);
             std::cout << "|";
         }
-        setDefaultColor();
-        gotoXY(30 + x, 3 + y2);
+        
+        gotoXY(30 + x, 3 + y_max);
         std::cout << "v";
+        return;
     }
 
-    if (first.y == second.y)
+    if (y1 == y2)
     {
-        int y = first.y * 5 + 2;
-        int x1 = std::min(first.x, second.x) * 7 + 6;
-        int x2 = std::max(first.x, second.x) * 7;
-        gotoXY(30 + x1, 3 + y);
+        int y = y1 * 5 + 2;
+        int x_min = std::min(x1, x2) * 7 + 6;
+        int x_max = std::max(x1, x2) * 7;
+
+        gotoXY(30 + x_min, 3 + y);
         std::cout << "<";
-        //setColor(WHITE, BLACK);
-        for (int i = x1 + 1; i < x2; i++)
+
+        for (int i = x_min + 1; i < x_max; i++)
         {
             Sleep(100);
             gotoXY(30 + i, 3 + y);
             std::cout << "-";
         }
-        setDefaultColor();
-        gotoXY(30 + x2, 3 + y);
+        
+        gotoXY(30 + x_max, 3 + y);
         std::cout << ">";
+        return;
     }
 }
 
@@ -343,229 +354,186 @@ void drawLLine(GameBoard board, Block first, Block second)
     Block tmp1 = board.Blocks[second.y][first.x];
     Block tmp2 = board.Blocks[first.y][second.x];
 
-    if (tmp1.mode == EMPTY)
+    if (tmp1.mode == EMPTY && check_I_Match(board, first, tmp1) && check_I_Match(board, second, tmp1))
     {
-        if (check_I_Match(board, first, tmp1) && check_I_Match(board, second, tmp1))
-        {
-            drawILine(first, tmp1);
-            drawILine(second, tmp1);
-
-            gotoXY(30 + tmp1.x * 7 + 3, 3 + tmp1.y * 5 + 2);
-            if (first.x > second.x)
-                std::cout << "O---";
-            else
-                std::cout << "---O";
-
-            if (tmp1.y < first.y)
-            {
-                gotoXY(30 + tmp1.x * 7 + 3, 3 + tmp1.y * 5 + 3);
-                std::cout << "|";
-                gotoXY(30 + tmp1.x * 7 + 3, 3 + tmp1.y * 5 + 4);
-                std::cout << "|";
-            }
-            else
-            {
-                gotoXY(30 + tmp1.x * 7 + 3, 3 + tmp1.y * 5 + 0);
-                std::cout << "|";
-                gotoXY(30 + tmp1.x * 7 + 3, 3 + tmp1.y * 5 + 1);
-                std::cout << "|";                
-            }
-        }
+        drawCenterDot(tmp1.x, tmp1.y);
+        drawILine(first.x, tmp1.x, first.y, tmp1.y);
+        drawILine(second.x, tmp1.x, second.y, tmp1.y);
+        return;
     }
     
-    else if (tmp2.mode == EMPTY)
-        if (check_I_Match(board, first, tmp2) && check_I_Match(board, second, tmp2))
-        {
-            drawILine(first, tmp2);
-            drawILine(second, tmp2);
-
-            gotoXY(30 + tmp2.x * 7, 3 + tmp2.y * 5 + 2);
-            if (first.x > second.x)
-                std::cout << "O---";
-            else
-                std::cout << "---O";
-
-            if (tmp2.y < second.y)
-            {
-                gotoXY(30 + tmp2.x * 7 + 3, 3 + tmp2.y * 5 + 3);
-                std::cout << "|";
-                gotoXY(30 + tmp2.x * 7 + 3, 3 + tmp2.y * 5 + 4);
-                std::cout << "|";
-            }
-            else
-            {
-                gotoXY(30 + tmp2.x * 7 + 3, 3 + tmp2.y * 5 + 0);
-                std::cout << "|";
-                gotoXY(30 + tmp2.x * 7 + 3, 3 + tmp2.y * 5 + 1);
-                std::cout << "|";                
-            }
-        }
+    if (tmp2.mode == EMPTY && check_I_Match(board, first, tmp2) && check_I_Match(board, second, tmp2))
+    {
+        drawCenterDot(tmp2.x, tmp2.y);
+        drawILine(first.x, tmp2.x, first.y, tmp2.y);
+        drawILine(second.x, tmp2.x, second.y, tmp2.y);
+        return;
+    }
 }
 
 void drawZLine(GameBoard board, Block first, Block second)
 {
-    int start = std::min(first.y, second.y);
-    int end = std::max(first.y, second.y);
+    int start, end;
+    Block temp1, temp2;
+
+    start = std::min(first.y, second.y);
+    end = std::max(first.y, second.y);
 
     for (int row = start + 1; row < end; row++) {
-        Block temp1 = board.Blocks[row][first.x];
-        Block temp2 = board.Blocks[row][second.x];
+        temp1 = board.Blocks[row][first.x];
+        temp2 = board.Blocks[row][second.x];
 
         if (temp1.mode == EMPTY && temp2.mode == EMPTY) 
         {
-            // Check Z match by verifying three of its edges
             if (check_I_Match(board, first, temp1) &&
                 check_I_Match(board, temp1, temp2) &&
                 check_I_Match(board, second, temp2))
-            {
-                temp1.x = std::min(first.x, second.x);
-                temp2.x = std::max(first.x, second.x);
-                drawILine(first,temp1);
-                drawILine(temp1,temp2);
-                drawILine(second,temp2);
 
-                if (first.y > second.y)
-                {
-                    gotoXY(30 + temp1.x * 7, 3 + temp1.y * 5 + 2);
-                    std::cout << "---";
-                    gotoXY(30 + temp2.x * 7 + 4, 3 + temp2.y * 5 + 2);
-                    std::cout << "---";
-                }
-                else
-                {
-                    gotoXY(30 + temp1.x * 7 + 3, 3 + temp1.y * 5 + 2);
-                    std::cout << "---";
-                    gotoXY(30 + temp2.x * 7, 3 + temp2.y * 5 + 2);
-                    std::cout << "---";
-                }
+            drawCenterDot(temp1.x, temp1.y);
+            drawCenterDot(temp2.x, temp2.y);
+            drawILine(temp1.x, temp2.x, temp1.y, temp2.y);
+            drawILine(first.x, temp1.x, first.y, temp1.y);
+            drawILine(second.x, temp2.x, second.y, temp2.y);
 
-                for (int i = 3; i <= 4; i++)
-                {
-                    gotoXY(30 + temp2.x * 7 + 3, 3 + temp2.y * 5 + i);
-                    std::cout << "|";
-                }
-                for (int i = 0; i <= 1; i++)
-                {
-                    gotoXY(30 + temp1.x * 7 + 3, 3 + temp1.y * 5 + i);
-                    std::cout << "|";
-                }
-                break;
-            }
+            return;
         }
     }
-
+    
     start = std::min(first.x, second.x);
     end = std::max(first.x, second.x);
 
     for (int col = start + 1; col < end; col++)
     {
-        Block temp1 = board.Blocks[first.y][col];
-        Block temp2 = board.Blocks[second.y][col];
+        temp1 = board.Blocks[first.y][col];
+        temp2 = board.Blocks[second.y][col];
 
         if (temp1.mode == EMPTY && temp2.mode == EMPTY)
         {
-            temp1.y = std::min(first.y, second.y);
-            temp2.y = std::max(first.y, second.y);
-            // Check Z match by verifying three of its edges
             if (check_I_Match(board, first, temp1) &&
                 check_I_Match(board, temp1, temp2) &&
                 check_I_Match(board, second, temp2))
-            {
-                drawILine(first,temp1);
-                drawILine(temp1,temp2);
-                drawILine(second,temp2);
 
-                if (first.x < second.x)
-                {
-                    gotoXY(30 + temp1.x * 7, 3 + temp1.y * 5 + 2);
-                    std::cout << "---";
-                    gotoXY(30 + temp2.x * 7 + 4, 3 + temp2.y * 5 + 2);
-                    std::cout << "---";
-                }
-                else
-                {
-                    gotoXY(30 + temp1.x * 7 + 3, 3 + temp1.y * 5 + 2);
-                    std::cout << "---";
-                    gotoXY(30 + temp2.x * 7, 3 + temp2.y * 5 + 2);
-                    std::cout << "---";
-                }
+            drawCenterDot(temp1.x, temp1.y);
+            drawCenterDot(temp2.x, temp2.y);
+            drawILine(temp1.x, temp2.x, temp1.y, temp2.y);
+            drawILine(first.x, temp1.x, first.y, temp1.y);
+            drawILine(second.x, temp2.x, second.y, temp2.y);
 
-                for (int i = 3; i <= 4; i++)
-                {
-                    gotoXY(30 + temp1.x * 7 + 3, 3 + temp1.y * 5 + i);
-                    std::cout << "|";
-                }
-                for (int i = 0; i <= 1; i++)
-                {
-                    gotoXY(30 + temp2.x * 7 + 3, 3 + temp2.y * 5 + i);
-                    std::cout << "|";
-                }
-                break;
-            }
+            return;
         }
     }
 }
 
-bool drawULineOutSide(int size, Block first, Block second)
-{
-    int x1 = std::min(first.x, second.x);
-    int x2 = std::max(first.x, second.x);
-    int y1 = std::min(first.y, second.y);
-    int y2 = std::max(first.y, second.y);
-
-    if ((first.y == second.y) && (first.y == 0 || first.y == size - 1))
-    {
-        char c = 'v';
-        int new_y = first.y * 5, add = -1;
-        if (first.y == size - 1)
-        {
-            new_y = first.y * 5 + 4;
-            c = '^';
-            add = 1;
-        }
-        gotoXY(33 + x1 * 7, 3 + new_y);
-        std::cout << c;
-        gotoXY(33 + x2 * 7, 3 + new_y);
-        std::cout << c;
-
-        int end = (x2 - x1) * 7 + 3;
-        for (int i = 4; i <= end; i++)
-        {
-            gotoXY(30 + x1 * 7 + i, 3 + new_y + add);
-            std::cout << "-";
-        }
-        return true;
-    }
-
-    if ((first.x == second.x) && (first.x == 0 || first.x == size - 1))
-    {
-        char c = '>';
-        int new_x = first.x * 7, add = -2;
-        if (first.x == size - 1)
-        {
-            new_x = first.y * 7 + 6;
-            c = '<';
-            add = 2;
-        }
-        gotoXY(30 + new_x, 5 + y1 * 5);
-        std::cout << c;
-        gotoXY(30 + new_x, 5 + y2 * 5);
-        std::cout << c;
-
-        int end = (y2 - y1) * 5 + 2;
-        for (int i = 3; i <= end; i++)
-        {
-            gotoXY(30 + new_x + add, 3 + y1 * 5 + i);
-            std::cout << "|";
-        }
-        return true;
-    }
-    return false;
-}
 void drawULine(GameBoard board, Block first, Block second)
 {
-    if (drawULineOutSide(board.size, first, second))
+    if ((first.y == second.y) && (first.y == 0 || first.y == board.size - 1))
+    {
+        int add = 1;
+        if (first.y == 0) add = -1;
+
+        drawCenterDot(first.x, first.y + add);
+        drawCenterDot(second.x, second.y + add);
+        drawILine(first.x , first.x, first.y, first.y + add);
+        drawILine(second.x , second.x, second.y, second.y + add);
+        drawILine(first.x, second.x, first.y + add, second.y + add);
         return;
+    }
+    
+    if ((first.x == second.x) && (first.x == 0 || first.x == board.size - 1))
+    {
+        int add = 1;
+        if (first.x == 0) add = -1;
+
+        drawCenterDot(first.x + add, first.y);
+        drawCenterDot(second.x + add, second.y);
+        drawILine(first.x , first.x + add, first.y, first.y);
+        drawILine(second.x , second.x + add, second.y, second.y);
+        drawILine(first.x + add, second.x + add, first.y, second.y);
+        return;
+    }
+    
+    Block tmp1, tmp2;
+    for (int row = 0; row < board.size; row++)
+    {
+        tmp1 = board.Blocks[row][first.x];
+        tmp2 = board.Blocks[row][second.x];
+        
+        if ((row == 0 || row == board.size - 1) && check_I_Match(board, first, tmp1) && check_I_Match(board, second, tmp2))
+        {
+            bool check1 = (row == first.x) || (row == second.x);
+            bool check2 = ((tmp1.x != first.x && tmp1.mode == EMPTY) || (tmp2.x != second.x && tmp2.mode == EMPTY));
+            bool check3 = (tmp1.mode == EMPTY && tmp2.mode == EMPTY);
+
+            if ((check1 && check2) || (!check1 && check3))
+            {
+                int add = 1;
+                if (row == 0) add = -1;
+
+                drawCenterDot(tmp1.x, tmp1.y + add);
+                drawCenterDot(tmp2.x, tmp2.y + add);
+                drawILine(tmp1.x, tmp2.x, tmp1.y + add, tmp2.y + add);
+                drawILine(first.x , tmp1.x, first.y, tmp1.y + add);
+                drawILine(second.x , tmp2.x, second.y, tmp2.y + add);
+                return;
+            }
+        }
+        else
+        {
+            if (check_I_Match(board, first, tmp1) && check_I_Match(board, second, tmp2)
+                && check_I_Match(board, tmp1, tmp2)
+                && (tmp1.mode == EMPTY && tmp2.mode == EMPTY))
+            {
+
+                drawCenterDot(tmp1.x, tmp1.y);
+                drawCenterDot(tmp2.x, tmp2.y);
+                drawILine(tmp1.x , first.x, tmp1.y, first.y);
+                drawILine(tmp2.x , second.x, tmp2.y, second.y);
+                drawILine(tmp1.x, tmp2.x, tmp1.y, tmp2.y);
+            }
+
+            return;
+        }
+    }
+    
+    for (int col = 0; col < board.size; col++)
+    {
+        tmp1 = board.Blocks[first.y][col];
+        tmp2 = board.Blocks[second.y][col];
+        
+        if ((col == 0 || col == board.size - 1) && check_I_Match(board, first, tmp1) && check_I_Match(board, second, tmp2))
+        {
+            bool check1 = (col == first.x) || (col == second.x); 
+            bool check2 = ((tmp1.x != first.x && tmp1.mode == EMPTY) || (tmp2.x != second.x && tmp2.mode == EMPTY));
+            bool check3 = (tmp1.mode == EMPTY) && (tmp2.mode == EMPTY);
+            
+            if ((check1 && check2) || (!check1 && check3))
+            {
+                int add = 1;
+                if (col == 0) add = -1;
+
+                drawCenterDot(tmp1.x + add, tmp1.y);
+                drawCenterDot(tmp2.x + add, tmp2.y);
+                drawILine(tmp1.x + add, tmp2.x + add, tmp1.y, tmp2.y);
+                drawILine(first.x , tmp1.x + add, first.y, tmp1.y);
+                drawILine(second.x , tmp2.x + add, second.y, tmp2.y);
+                return;
+            }
+        }
+        else
+        {
+            if (check_I_Match(board, first, tmp1) && check_I_Match(board, second, tmp2)
+                && check_I_Match(board, tmp1, tmp2)
+                && (tmp1.mode == EMPTY && tmp2.mode == EMPTY))
+            {
+                drawCenterDot(tmp1.x, tmp1.y);
+                drawCenterDot(tmp2.x, tmp2.y);
+                drawILine(tmp1.x, tmp2.x, tmp1.y, tmp2.y);
+                drawILine(tmp1.x , first.x, tmp1.y, first.y);
+                drawILine(tmp2.x , second.x, tmp2.y, second.y);
+            }
+            return;
+        }
+    }
 }
 
 // Clean up board

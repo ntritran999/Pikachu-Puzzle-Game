@@ -34,10 +34,10 @@ void drawBlock(Block block);
 void drawSelectedEmptyBlock(Block block);
 void drawBoard(GameBoard board);
 
-void drawILine(Block first, Block second);
+void drawCenterDot(int x, int y);
+void drawILine(int x1, int x2, int y1, int y2);
 void drawLLine(GameBoard board, Block first, Block second);
 void drawZLine(GameBoard board, Block first, Block second);
-bool drawULineOutSide(int size, Block first, Block second);
 void drawULine(GameBoard board, Block first, Block second);
 
 // Clean up board
