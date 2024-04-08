@@ -101,7 +101,9 @@ void printMenu()
             system("cls");
             std::cout << "Starting game...\n";
             Sleep(1000); // delay 1 second
-            startGame();
+
+            GameInfo game;
+            startGame(&game);
         }
 
         else if (menu_option == '2')
