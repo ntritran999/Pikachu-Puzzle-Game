@@ -1,8 +1,9 @@
 #include "game_logic.h"
 
-void startGame()
+bool stopTimer;
+
+void startGame(GameInfo *game)
 {
-    GameInfo game;
     int option;
     
     while (true)
@@ -23,21 +24,22 @@ void startGame()
 
         if (option == '1' || option == '2' || option == '3')
         {
-            // Initialize the game's information
-            game.score = 0;
+            // Initialize the game's information and time
+            int duration = (option - '0') * 60;
+            game->score = 0;
             if (option == '1')
-                game.difficulty = EASY;
+                game->difficulty = EASY;
             else if (option == '2')
-                game.difficulty = MEDIUM;
+                game->difficulty = MEDIUM;
             else
-                game.difficulty = HARD;
+                game->difficulty = HARD;
             
             // Loading
             system("cls");
             std::cout << "Loading game...\n";
             Sleep(2000);
 
-            loadGame(&game);
+            loadGame(game, duration);
         }
 
         else if (option == ESC)
@@ -56,7 +58,7 @@ void startGame()
     }
 }
 
-void loadGame(GameInfo *game)
+void loadGame(GameInfo *game, int duration)
 {
     // Initialize board
     srand(time(0));
@@ -67,7 +69,11 @@ void loadGame(GameInfo *game)
 
     // Game score
     int score = game->score;
-    game->gameOver = false;
+    game->gameFinished = false;
+
+    // Initialize time
+    std::thread timer(countDownTimer, &duration);
+    stopTimer = false;
 
     // Initialize cursor
     int cursor_x = 0, cursor_y = 0;
@@ -137,7 +143,10 @@ void loadGame(GameInfo *game)
         
         else if (c == ESC)
         {
-            saveGame(*game);
+            cleanBoard(&board);
+            game->score = score;
+            stopTimer = true;
+            saveGame("Quiting game!");
             break;
         }
 
@@ -149,35 +158,47 @@ void loadGame(GameInfo *game)
         
         if (checkEmptyBoard(board))
         {
-            Sleep(3000);
-            system("cls");
-            setColor(BLACK, YELLOW);
-            std::cout << "No more blocks!\n";
-            setDefaultColor();
-            saveGame(*game);
+            cleanBoard(&board);
+            game->score = score;
+            game->gameFinished = true;
+            stopTimer = true;
+            saveGame("Board is empty!");
             break;
         }
 
         if (!checkRemainPairs(board))
         {
-            Sleep(3000);
-            system("cls");
-            setColor(BLACK, YELLOW);
-            std::cout << "No more valid pairs!\n";
-            setDefaultColor();
-            saveGame(*game);
+            cleanBoard(&board);
+            game->score = score;
+            game->gameFinished = true;
+            stopTimer = true;
+            saveGame("No valid pairs remain!");
+            break;
+        }
+
+        if (duration <= 0)
+        {
+            cleanBoard(&board);
+            game->score = score;
+            saveGame("Time up! You lost!");
             break;
         }
     }
+
+    timer.join();
 }
 
-void saveGame(GameInfo game)
+void saveGame(std::string message)
 {
-    std::string name;
-    std::cout << "Please enter your name: ";
-    std::cin >> name;
+    system("cls");
+    setColor(BLACK, YELLOW);
+    std::cout << message << "\n";
+    setDefaultColor();
+    Sleep(500);
+    std::cout << "Saving game...\n";
+    // Play sound
 
-
+    Sleep(1000);
 }
 
 ////////////////////////////////////////////////////////
@@ -285,7 +306,7 @@ void drawScoreBoard(int score)
     gotoXY(max_len - 50, 3);
     std::cout << "|                  |\n";
     gotoXY(max_len - 50, 4);
-    std::cout << "|    score: " << score << "    ";
+    std::cout << "|    SCORE: " << score << "    ";
     if (score < 10)
         std::cout << "  |\n";
     else if (score < 100)
@@ -302,7 +323,7 @@ bool scoreIMatch(int &score, GameBoard board, Block *first, Block *second)
 {
     if (first->value == second->value && check_I_Match(board, *first, *second))
     {
-        drawILine(*first, *second);
+        drawILine(first->x, second->x, first->y, second->y);
         first->mode = second->mode = EMPTY;
         score++;
         return true;
@@ -407,4 +428,39 @@ bool checkRemainPairs(GameBoard board)
 void moveSuggestion(GameBoard board)
 {
 
+}
+
+// Timer
+void countDownTimer(int *duration) 
+{
+    while (*duration >= 0 && !stopTimer)
+    {
+        drawTimer(*duration);
+        (*duration)--;
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+void drawTimer(int duration)
+{
+    RECT desktop;
+    GetWindowRect(GetDesktopWindow(), &desktop);
+
+    int max_len = desktop.right / 8;
+
+    gotoXY(max_len - 50, 7);
+    std::cout << "|                  |\n";
+    gotoXY(max_len - 50, 8);
+    std::cout << "|    TIME: " << duration << "     ";
+    if (duration < 10)
+        std::cout << "  |\n";
+    else if (duration < 100)
+        std::cout << " |\n";
+    else if (duration < 1000)
+        std::cout << "|\n";
+    gotoXY(max_len - 50, 9);
+    std::cout << "|                  |\n";
+    gotoXY(max_len - 50, 10);
+    std::cout << "+------------------+\n";
 }

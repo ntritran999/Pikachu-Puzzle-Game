@@ -1,14 +1,18 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <time.h>
-#include <stdlib.h>
+#include <chrono>
+#include <thread>
 #include <conio.h>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <stdlib.h>
+#include <time.h>
 
 #include "board.h"
+
+extern bool stopTimer;
 
 enum GameDifficulty
 {
@@ -21,13 +25,13 @@ struct GameInfo
 {
     GameDifficulty difficulty;
     int score;
-    bool gameOver;
+    bool gameFinished;
 };
 
 // Game stage
-void startGame();
-void loadGame(GameInfo *game);
-void saveGame(GameInfo game);
+void startGame(GameInfo *game);
+void loadGame(GameInfo *game, int duration);
+void saveGame(std::string message);
 
 // Draw background
 void drawBackground(GameDifficulty difficulty);
@@ -51,3 +55,7 @@ bool checkRemainPairs(GameBoard board);
 
 // Helping tool
 void moveSuggestion(GameBoard board);
+
+//Timer
+void countDownTimer(int *duration);
+void drawTimer(int duration);
