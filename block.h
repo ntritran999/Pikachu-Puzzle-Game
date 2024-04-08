@@ -16,4 +16,4 @@ struct Block
     Block_mode mode;
 };
 
-void initBLock(Block &block, int x, int y, char c);
+void initBlock(Block &block, int x, int y, char c);

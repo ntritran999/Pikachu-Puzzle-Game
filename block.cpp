@@ -1,6 +1,6 @@
 #include "block.h"
 
-void initBLock(Block &block, int x, int y, char c)
+void initBlock(Block &block, int x, int y, char c)
 {
     block.x = x;
     block.y = y;
