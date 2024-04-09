@@ -5,7 +5,7 @@ bool stopTimer;
 void startGame(GameInfo *game)
 {
     int option;
-    
+
     while (true)
     {
         system("cls");

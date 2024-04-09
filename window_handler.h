@@ -28,6 +28,14 @@
 #define KEY_LEFT 75
 #define KEY_RIGHT 77
 
+// SOUNDTRACK
+#define BACKGROUND_SOUND 0
+#define MOVE_SOUND 1
+#define LOCK_SOUND 3
+#define UNLOCK_SOUND 3
+#define ERROR_SOUND 4
+#define ENDGAME_SOUND 5
+
 void gotoXY(int x, int y);
 void setUpWindow();
 void setWindowSize();
@@ -36,3 +44,4 @@ void setDefaultColor();
 void hideScrollBar();
 void hideCursor();
 void setTitle();
+void playSound(int);
