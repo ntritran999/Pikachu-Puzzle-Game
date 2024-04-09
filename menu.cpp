@@ -14,13 +14,15 @@ void printLogo()
     {
         std::string line;
         int i = 0;
+        setColor(BLACK, LIGHT_YELLOW);
         while(std::getline(logo_file, line))
         {
-            gotoXY(40, 10 + i);
+            gotoXY(40, 5 + i);
             std::cout << R"()" << line.c_str() << R"()";
             i++;
+            Sleep(100);
         }
-
+        setDefaultColor();
         logo_file.close();
     }
 }
@@ -63,8 +65,8 @@ void printCredit()
 {
     system("cls");
 
-    std::cout << "Develop 1: Dinh Ngoc Anh Duong\n";
-    std::cout << "Develop 2: Tran Tri Nhan\n";
+    std::cout << "DEVELOPER 1: DINH NGOC ANH DUONG\n";
+    std::cout << "DEVELOPER 2: TRAN TRI NHAN\n";
     
     std::cout << "\n[PRESS ESC KEY TO GO BACK...]\n";
     int option = getch();
@@ -87,12 +89,14 @@ void printMenu()
     {
         system("cls");
 
-        std::cout << "Press a number to continue.\n";
-        std::cout << "1.Play\n";
-        std::cout << "2.Quick Guide\n";
-        std::cout << "3.Leaderboard\n";
-        std::cout << "4.Quit\n";
-        std::cout << "5.Credit\n";
+        std::cout << "-----PRESS A NUMBER TO CONTINUE-----\n";
+        setColor(BLACK, LIGHT_YELLOW);
+        std::cout << "  1.PLAY\n";
+        std::cout << "  2.QUICK GUIDE\n";
+        std::cout << "  3.LEADERBOARD\n";
+        std::cout << "  4.QUIT\n";
+        std::cout << "  5.CREDIT\n";
+        setDefaultColor();
 
         menu_option = getch();
 
