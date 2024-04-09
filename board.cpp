@@ -233,7 +233,7 @@ bool check_U_Match(GameBoard board, Block first, Block second)
 }
 
 // Visualize
-void drawBlock(Block block)
+void drawBlock(Block block, int background, int text)
 {
     int x = block.x * 7;
     int y = block.y * 5;
@@ -241,10 +241,7 @@ void drawBlock(Block block)
     gotoXY(30 + x, 3 + y);
     std::cout << " ----- \n";
     
-    if (block.isSelected)
-        setColor(WHITE, BLACK);
-    else if (block.mode == LOCKED)
-        setColor(GREEN, LIGHT_BLUE);
+    setColor(background, text);
         
     gotoXY(30 + x, 4 + y);
     std::cout << "|     |\n";
@@ -259,28 +256,6 @@ void drawBlock(Block block)
     std::cout << " ----- \n";
 }
 
-void drawSelectedEmptyBlock(Block block)
-{
-    int x = block.x * 7;
-    int y = block.y * 5;
-
-    gotoXY(30 + x, 3 + y);
-    std::cout << "       \n";    
-
-    setColor(WHITE, BLACK);
-
-    gotoXY(30 + x, 4 + y);
-    std::cout << "       \n";
-    gotoXY(30 + x, 5 + y);
-    std::cout << "       \n";
-    gotoXY(30 + x, 6 + y);
-    std::cout << "       \n";
-    
-    setDefaultColor();
-
-    gotoXY(30 + x, 7 + y);
-    std::cout << "       \n";
-}
 
 void drawBoard(GameBoard board)
 {
@@ -290,10 +265,17 @@ void drawBoard(GameBoard board)
             Block block = board.Blocks[i][j];
 
             if (block.mode != EMPTY)
-                drawBlock(block);
+            {
+                if (block.isSelected == true)
+                    drawBlock(block, WHITE, BLACK);
+                else if (block.mode == LOCKED)
+                    drawBlock(block, GREEN, LIGHT_BLUE);
+                else
+                    drawBlock(block, BLACK, WHITE);
+            }
             else
                 if (block.isSelected == true)
-                    drawSelectedEmptyBlock(block);
+                    drawBlock(block, WHITE, BLACK);
         }
 }
 

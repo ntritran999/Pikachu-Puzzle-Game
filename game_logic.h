@@ -54,7 +54,7 @@ bool checkEmptyBoard(GameBoard board);
 bool checkRemainPairs(GameBoard board);
 
 // Helping tool
-void moveSuggestion(GameBoard board);
+void moveSuggestion(GameBoard board, Block &found1, Block &found2);
 
 //Timer
 void countDownTimer(int *duration);

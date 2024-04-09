@@ -152,8 +152,11 @@ void loadGame(GameInfo *game, int duration)
 
         else if (c == 'h')
         {
-            moveSuggestion(board);
-            Sleep(5000);
+            Block f1, f2;
+            moveSuggestion(board, f1, f2);
+            drawBlock(f1, PURPLE, WHITE);
+            drawBlock(f2, PURPLE, WHITE);
+            Sleep(1500);
         }
         
         if (checkEmptyBoard(board))
@@ -325,6 +328,7 @@ bool scoreIMatch(int &score, GameBoard board, Block *first, Block *second)
     {
         drawILine(first->x, second->x, first->y, second->y);
         first->mode = second->mode = EMPTY;
+        first->value = second->value = ' ';
         score++;
         return true;
     }
@@ -336,11 +340,9 @@ bool scoreLMatch(int &score, GameBoard board, Block *first, Block *second)
 {
     if (first->value == second->value && check_L_Match(board, *first, *second))
     {
-        if (first->y < second->y)
-            drawLLine(board, *second, *first);
-        else
-            drawLLine(board, *first, *second);
+        drawLLine(board, *first, *second);
         first->mode = second->mode = EMPTY;
+        first->value = second->value = ' ';
         score += 2;
         return true;
     }
@@ -354,6 +356,7 @@ bool scoreZMatch(int &score, GameBoard board, Block *first, Block *second)
     {
         drawZLine(board, *first, *second);
         first->mode = second->mode = EMPTY;
+        first->value = second->value = ' ';
         score += 3;
         return true;
     }
@@ -367,6 +370,7 @@ bool scoreUMatch(int &score, GameBoard board, Block *first, Block *second)
     {
         drawULine(board, *first, *second);
         first->mode = second->mode = EMPTY;
+        first->value = second->value = ' ';
         score += 3;
         return true;
     }
@@ -425,9 +429,48 @@ bool checkRemainPairs(GameBoard board)
 }
 
 // Move suggestion
-void moveSuggestion(GameBoard board)
+void moveSuggestion(GameBoard board, Block &found1, Block &found2)
 {
+    Block first, second;
+    for (int i = 0; i < board.size; i++)
+    {
+        for (int j = 0; j < board.size; j++)
+        {
+            first = board.Blocks[i][j];
 
+            if (first.mode == EMPTY) 
+                continue;
+
+            for (int r = 0; r < board.size; r++)
+                for (int c = 0; c < board.size; c++)
+                {
+                    if (i == r && j == c)
+                        continue;
+
+                    second = board.Blocks[r][c];
+
+                    if (second.mode == EMPTY)
+                        continue;
+
+                    if (first.value != second.value)
+                        continue;
+
+                    bool check_I = check_I_Match(board, first, second);
+                    bool check_U = check_U_Match(board, first, second);
+                    bool check_L = check_L_Match(board, first, second);
+                    bool check_Z = check_Z_Match(board, first, second);
+                    
+                    if (check_I || check_U || check_L || check_Z)
+                    {
+                        found1 = first;
+                        found2 = second;
+                        return;
+                    }
+                }
+        }
+    }
+    
+    return;
 }
 
 // Timer

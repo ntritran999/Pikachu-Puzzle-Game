@@ -30,8 +30,7 @@ bool check_U_Vertical(GameBoard board, Block first, Block second);
 bool check_U_Match(GameBoard board, Block first, Block second);
 
 // Visual Representation
-void drawBlock(Block block);
-void drawSelectedEmptyBlock(Block block);
+void drawBlock(Block block, int background, int text);
 void drawBoard(GameBoard board);
 
 void drawCenterDot(int x, int y);
