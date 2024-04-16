@@ -4,23 +4,24 @@ void printLogo()
 {
     system("cls");
 
-    std::ifstream logo_file(R"(.\images\logo.txt)");
-    if (!logo_file.is_open())
+    std::ifstream logo_file("./images/logo.txt");
+    if (!logo_file)
     {
         std::cout << "Cannot open file!\n";
         return;
     }
     else
     {
+        // Print out the logo
         std::string line;
         int i = 0;
-        setColor(BLACK, LIGHT_YELLOW);
+        setColor(BLACK, LIGHT_YELLOW); // Add color for the logo.
         while(std::getline(logo_file, line))
         {
             gotoXY(40, 5 + i);
-            std::cout << R"()" << line.c_str() << R"()";
+            std::cout << line;
             i++;
-            Sleep(100);
+            Sleep(100); // Add some delay for animation.
         }
         setDefaultColor();
         logo_file.close();
@@ -28,71 +29,82 @@ void printLogo()
 }
 
 void printGuide() {
-    system("cls");
-    std::cout << "************ GUIDE ************\n";
-    std::cout << "Pikachu Online is a classic puzzle game where you need to match pairs of identical tiles.\n";
-    std::cout << "The rules are simple:\n";
-    std::cout << "1. You can only match tiles that are not blocked from the left or right and can be connected with three or fewer straight lines.\n";
-    std::cout << "2. If you match a pair of tiles, they will disappear, and you will earn points.\n";
-    std::cout << "3. Your goal is to clear all tiles from the board before time runs out.\n";
-    std::cout << "4. Be careful! The game will become more challenging as you progress to higher levels.\n";
-    std::cout << "\n";
+    setColor(BLACK, LIGHT_GREEN);
     std::cout << "************ HOW TO PLAY ************\n";
-    std::cout << "Use arrow keys to move the cursor.\n";
-    std::cout << "Press Enter to select a tile.\n";
-    std::cout << "Press 'H' to ask for a hint.\n";
-    std::cout << "Press 'Q' to quit the game.\n";
+    setColor(BLACK, LIGHT_YELLOW);
+    std::cout << "  ARROW KEY = MOVING\n";
+    std::cout << "  ENTER = SELECTING\n";
+    std::cout << "  'U' = UNDO SELECTING\n";
+    std::cout << "  'H' = HINTING\n";
+    std::cout << "  'Q' = QUITING GAME\n";
     std::cout << "\n[PRESS ESC KEY TO GO BACK...]\n";
 
+    setDefaultColor();
     while (getch() != ESC) {
         // Wait until ESC key is pressed
     }
 }
 
-
-void printLeaderBoard()
-{
-    const int MAX_PLAYERS = 10;  // Do cần in thông tin từ 10 người chơi trở xuống
-    PlayerInfo* players = new PlayerInfo[MAX_PLAYERS];
-    PlayerInfo player;
-    int numPlayers = 0;
-
-    // Đọc thông tin người chơi từ file
-    std::ifstream file("PlayerInfo.txt", std::ios::in | std::ios::binary);
+void savePlayerInfo(const PlayerInfo player) {
+    std::ofstream file("PlayerInfo.bin", std::ios::out | std::ios::app | std::ios::binary);
     if (!file.is_open()) {
-        std::cout << "Failed to open file for reading.\n";
-        delete[] players; // Giải phóng bộ nhớ
+        std::cout << "Failed to open file for writing.\n";
         return;
     }
 
-    // Đọc thông tin của từng người chơi vào mảng
-    while (numPlayers < MAX_PLAYERS && file.read(reinterpret_cast<char*>(&player), sizeof(PlayerInfo))) {
-        players[numPlayers++] = player;
+    // Write data of PlayerInfo into file
+    file.write(reinterpret_cast<const char*>(&player), sizeof(player));
+
+    file.close();
+}
+
+void printLeaderBoard()
+{
+    const int MAX_PLAYERS = 10;  // Because we need the top 10 player for the leaderboard
+    std::vector <PlayerInfo> player_lists;
+    PlayerInfo player;
+
+    // Read players' information from file.
+    std::ifstream file("PlayerInfo.bin", std::ios::in | std::ios::binary);
+    if (!file.is_open()) {
+        std::cout << "No records available on this device.\n";
+        Sleep(500);
+        return;
     }
+
+    // Read each player's information into an array
+    // Continue reading until the number of players reaches 10 or the end of file is reached
+    while (player_lists.size() < MAX_PLAYERS && file.read(reinterpret_cast<char*>(&player), sizeof(player)))
+        if (player.score >= 0) // Only reading the players with proper information into the list.
+            player_lists.push_back(player);
+    
     file.close();
 
-    // Sắp xếp mảng theo điểm số giảm dần
-    for (int i = 0; i < numPlayers - 1; ++i) {
-        for (int j = i + 1; j < numPlayers; ++j) {
-            if (players[i].score < players[j].score) {
-                std::swap(players[i], players[j]);
-            }
-        }
-    }
+    // Sort the list of players in descending order based on their scores.
+    std::sort(player_lists.begin(), player_lists.end(),
+            [](const PlayerInfo& player1, const PlayerInfo& player2) {
+            return player1.score > player2.score;
+        });
 
-    // In ra thông tin của 10 người chơi có điểm số cao nhất hoặc tất cả người chơi nếu số lượng ít hơn 10
-    
-    std::cout << "Leaderboard:\n";
-    
-    for (int i = 0; i < numPlayers; ++i) {
-        std::cout << "Rank " << i + 1 << ":\n";
-        std::cout << "Player Name: " << players[i].playerName << std::endl;
-        std::cout << "Score: " << players[i].score << std::endl;
-        std::cout << "Mode: " << players[i].mode << std::endl;
+    // Print out the top 10 players or all of players if the total players is less than 10.
+    setColor(BLACK, LIGHT_GREEN);
+    std::cout << "========LEADERBOARD========\n";
+    setColor(BLACK, LIGHT_YELLOW);
+    for (int i = 0; i < player_lists.size(); ++i) {
+        std::cout << "  RANK: " << i + 1 << "\n";
+        std::cout << "PLAYER NAME: " << player_lists[i].playerName << std::endl;
+        std::cout << "SCORE: " << player_lists[i].score << std::endl;
+        std::cout << "MODE: " << player_lists[i].mode << std::endl;
+        std::cout << "STATUS: " << player_lists[i].status << std::endl;
         std::cout << std::endl;
     }
+    setDefaultColor();
 
-    delete[] players; // Giải phóng bộ nhớ
+    std::cout << "\n[PRESS ESC KEY TO GO BACK...]\n";
+
+    while (getch() != ESC) {
+        // Wait until ESC key is pressed
+    }
 }
 
 bool printExit()
@@ -127,44 +139,14 @@ void printCredit()
     std::cout << "DEVELOPER 2: TRAN TRI NHAN\n";
     
     std::cout << "\n[PRESS ESC KEY TO GO BACK...]\n";
-    int option = getch();
-    while (option != ESC)
-        option = getch();
-}
-
-void savePlayerInfo(const PlayerInfo& player) {
-    std::ofstream file("PlayerInfo.txt", std::ios::out | std::ios::binary);
-    if (!file.is_open()) {
-        std::cout << "Failed to open file for writing.\n";
-        return;
+    while (getch() != ESC) {
+        // Wait until ESC key is pressed
     }
-
-    // Ghi dữ liệu của PlayerInfo vào file
-    file.write(reinterpret_cast<const char*>(&player), sizeof(PlayerInfo));
-
-    file.close();
-}
-
-void printPlayerInfo() {
-    PlayerInfo player;
-    std::ifstream file("PlayerInfo.txt", std::ios::in | std::ios::binary);
-    if (!file.is_open()) {
-        std::cout << "Failed to open file for reading.\n";
-        return;
-    }
-
-    std::cout << "Player info:\n";
-    while (file.read(reinterpret_cast<char*>(&player), sizeof(PlayerInfo))) {
-        std::cout << "Player Name: " << player.playerName << std::endl;
-        std::cout << "Score: " << player.score << std::endl;
-        std::cout << "Mode: " << player.mode << std::endl;
-        std::cout << std::endl;
-    }
-    file.close();
 }
 
 void printMenu()
 {
+    playSound(BACKGROUND_SOUND);
     printLogo();
     Sleep(3000);
     
@@ -195,20 +177,39 @@ void printMenu()
             std::cout << "Starting game...\n";
             Sleep(1000); // delay 1 second
 
-             GameInfo game;
+            GameInfo game;
             PlayerInfo player;
 
-            // Nhập tên người chơi
+            // Enter the name for player 
             std::cout << "Enter your name: ";
-            std::getline(std::cin, player.playerName);
+            std::cin.getline(player.playerName, 256);
 
+            // Start the game
             startGame(&game);
 
-            // Gán thông tin điểm và độ khó từ GameInfo vào PlayerInfo
+            // After finishing the game, assign information from GameInfo to PlayerInfo.
+            // Assign score
             player.score = game.score;
-            player.mode = game.difficulty;
 
-            // Lưu thông tin người chơi vào file
+            // Assign mode
+            if (game.difficulty == EASY)
+                strcpy(player.mode, "Easy");
+            else if (game.difficulty == MEDIUM)
+                strcpy(player.mode, "Medium");
+            else if (game.difficulty == HARD)
+                strcpy(player.mode, "Hard");
+            else if (game.difficulty == CHALLENGE)
+                strcpy(player.mode, "Challenge");
+            else
+                strcpy(player.mode, "Unknown");
+
+            // Assign status
+            if (game.gameFinished == true)
+                strcpy(player.status, "Won");
+            else
+                strcpy (player.status, "Lost");
+
+            // Save player's information into a file.
             savePlayerInfo(player);
         }
 
@@ -221,7 +222,6 @@ void printMenu()
         else if (menu_option == '3')
         {
             system("cls");
-            printPlayerInfo();
             printLeaderBoard();
         }
 
@@ -239,6 +239,7 @@ void printMenu()
 
         else
         {
+            playSound(ERROR_SOUND);
             std::cout << "Please choose the correct option.\n";
             Sleep(1000); // delay 1 second
         }

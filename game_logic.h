@@ -11,6 +11,8 @@
 #include <time.h>
 
 #include "board.h"
+#include "stage_difficulty_increase.h"
+#include "window_handler.h"
 
 extern bool stopTimer;
 
@@ -19,6 +21,8 @@ enum GameDifficulty
     EASY,
     MEDIUM,
     HARD,
+    CHALLENGE,
+    UNKNOWN,
 };
 
 struct GameInfo
@@ -58,4 +62,3 @@ void moveSuggestion(GameBoard board, Block &found1, Block &found2);
 
 //Timer
 void countDownTimer(int *duration);
-void drawTimer(int duration);

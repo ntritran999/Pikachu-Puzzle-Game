@@ -1,6 +1,8 @@
 #pragma once
 
-#include "windows.h"
+#include <string>
+
+#include <windows.h>
 
 // Colors
 #define BLACK 0      
@@ -44,4 +46,6 @@ void setDefaultColor();
 void hideScrollBar();
 void hideCursor();
 void setTitle();
-void playSound(int);
+
+//Sound setting
+void playSound(int audio_pos);

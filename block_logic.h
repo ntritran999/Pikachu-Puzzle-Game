@@ -1,6 +1,6 @@
 #pragma once
 
-#include <random>
+#include <stdlib.h>
 
 // Functions to support fill board
 void genRandoms(int *a, int size);

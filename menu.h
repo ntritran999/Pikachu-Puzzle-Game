@@ -1,18 +1,24 @@
 #pragma once
 
+#include <cstring>
+
 #include "window_handler.h"
 #include "game_logic.h"
 
-
 struct PlayerInfo {
-	std::string playerName;
+	char playerName[256];
 	int score;
-	std::string mode;
+	char mode[256];
+	char status[256];
 };
 
 void printLogo();
 void printGuide();
+
+// Player related
+void savePlayerInfo(const PlayerInfo player);
 void printLeaderBoard();
+
 bool printExit();
 void printCredit(); 
 void printMenu();

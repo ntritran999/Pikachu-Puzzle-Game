@@ -1,4 +1,5 @@
 #include "window_handler.h"
+#include <iostream>
 
 HANDLE consoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 HWND consoleWindow = GetConsoleWindow();
@@ -55,8 +56,10 @@ void setTitle()
     SetConsoleTitleA("PIKACHU-PUZZLE-GAME");
 }
 
-void playSound(int i) {
-    const char* soundFile[] = { "background.wav", "move.wav", "lock.wav", "unlock.wav", "error.wav", "endgame.wav" };
-    // Phát âm thanh từ đường dẫn được khai báo
-    PlaySound(soundFile[i], NULL, SND_FILENAME | SND_ASYNC);
+// Sound setting
+void playSound(int audio_pos) {
+    std::string soundFile[] = { "background.wav", "move.wav", "lock.wav", "unlock.wav", "error.wav", "endgame.wav" };
+    // Play audio from the declared path.
+    std::string path = "./sounds/" + soundFile[audio_pos];
+    PlaySound(path.c_str(), NULL, SND_FILENAME | SND_ASYNC);
 }

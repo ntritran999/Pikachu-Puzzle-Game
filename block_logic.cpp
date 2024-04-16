@@ -6,8 +6,22 @@ void genRandoms(int *a, int size)
     // to make sure that there are pairs in the array.
     for (int i = 0; i < size; i += 2)
     {
-        a[i] = rand() % 26; // get value of the alphabet from 0 -> 25.
-        a[i + 1] = a[i];
+        int value, flag;
+
+        // Keep on looping until an unique value is obtained.
+        do {
+            value = rand() % 26; // get value of the alphabet from 0 -> 25.
+            flag = 0;
+            for (int j = 0; j < i; j += 2)
+                if (value == a[j])
+                {
+                    flag = 1;
+                    break;
+                }
+        }
+        while (flag);
+
+        a[i + 1] = a[i] = value;
     }
 }
 
