@@ -250,9 +250,13 @@ void saveGame(std::string message)
 //Draw background
 void drawBackground(GameDifficulty difficulty)
 {
-    std::string file_name = "./images/";
-    file_name += difficulty + "1";
-    file_name += ".txt";
+    std::string file_name;
+    if (difficulty == EASY)
+        file_name = "./images/1.txt";
+    else if (difficulty == MEDIUM)
+        file_name = "./images/2.txt";
+    else
+        file_name = "./images/3.txt";
 
     std::ifstream bg_file(file_name);
     

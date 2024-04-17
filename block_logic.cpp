@@ -8,18 +8,23 @@ void genRandoms(int *a, int size)
     {
         int value, flag;
 
-        // Keep on looping until an unique value is obtained.
-        do {
-            value = rand() % 26; // get value of the alphabet from 0 -> 25.
-            flag = 0;
-            for (int j = 0; j < i; j += 2)
-                if (value == a[j])
-                {
-                    flag = 1;
-                    break;
-                }
+        if (size < 64)
+        {
+            // Keep on looping until an unique value is obtained.
+            do {
+                value = rand() % 26; // get value of the alphabet from 0 -> 25.
+                flag = 0;
+                for (int j = 0; j < i; j += 2)
+                    if (value == a[j])
+                    {
+                        flag = 1;
+                        break;
+                    }
+            }
+            while (flag);
         }
-        while (flag);
+        else
+            value = rand() % 26;
 
         a[i + 1] = a[i] = value;
     }
